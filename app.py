@@ -9,7 +9,6 @@ SECRET_KEY = 'my_test'
 USERNAME = 'admin'
 PASSWORD = 'admin'
 
-
 # create and initialize app
 app = Flask(__name__)
 app.config.from_object(__name__)
@@ -28,8 +27,8 @@ def init_db():
 
 def get_db():
     if not hasattr(g, 'sqlite_db'):
-         g.sqlite_db = connect_db()
-    return g.sqlite_db
+        g.sqlite_db = connect_db()
+        return g.sqlite_db
 
 
 @app.teardown_appcontext
@@ -37,8 +36,14 @@ def close_db(error):
     if hasattr(g, 'sqlite_db'):
         g.sqlite_db.close()
 
+@app.route('/')
+def show_entries():
+    db = get_db()
+    cur = db.execute('select * from entries order by id desc')
+    entries = cur.fetchall()
+    return render_template('index.html', entries=entries)
+
 
 if __name__=='__main__':
     init_db()
     app.run()
-
